@@ -1,0 +1,19 @@
+# --- Security (NEVER UPLOAD) ---
+.env
+.env.local
+.streamlit/secrets.toml
+
+# --- Python System ---
+__pycache__/
+*.pyc
+.DS_Store
+
+# --- Virtual Environments ---
+.venv/
+venv/
+env/
+
+# --- Data Privacy ---
+# Uncomment the line below if the Excel/PDFs are confidential 
+# and you DON'T want them on GitHub servers.
+# data/docs/*

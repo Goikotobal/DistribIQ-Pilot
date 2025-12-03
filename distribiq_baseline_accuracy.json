@@ -1,0 +1,311 @@
+{
+  "meta": {
+    "total_questions": 20,
+    "total_time_sec": 275.12,
+    "avg_time_per_query": 13.76,
+    "model": "gemini-2.5-flash"
+  },
+  "results": [
+    {
+      "question_id": "S001",
+      "question": "What is the lead time for Citric Acid from Jungbunzlauer?",
+      "generated_answer": "The lead time for Citric Acid Anhydrous BP/USP/FCC (BAR-CA-JB-001) from Jungbunzlauer AG is 2-3 weeks.",
+      "confidence": 1.0,
+      "citations": [
+        "Product Master Data"
+      ],
+      "response_time_sec": 9.12,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S002",
+      "question": "Which products can we get within 2 weeks?",
+      "generated_answer": "Based on the provided data, there are no products listed with a lead time strictly within 2 weeks (i.e., less than or equal to 2 weeks). The shortest lead time available for any product is \"2-3 weeks\".",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data",
+        "Decision Scenarios"
+      ],
+      "response_time_sec": 11.89,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S003",
+      "question": "Does Ascorbic Acid (BAR-AA-DSM-003) meet pharma grade requirements with GMP certification?",
+      "generated_answer": "Yes, Ascorbic Acid (BAR-AA-DSM-003) meets pharma grade requirements with GMP certification.",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data",
+        "Quality Requirements"
+      ],
+      "response_time_sec": 7.23,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S004",
+      "question": "Can we ship Lactic Acid to France? What hazmat documentation is needed?",
+      "generated_answer": "Yes, Lactic Acid (BAR-LA-JB-002) can be shipped to France. As it has a Hazard Class of Corrosive (8), specific hazmat documentation is required, including ADR (European Agreement concerning the International Carriage of Dangerous Goods by Road) documentation and a Safety Data Sheet (SDS). Additionally, a Certificate of Analysis (CoA) is mandatory for this food-grade product, and E-number authorization is needed for its use as a food additive in the EU.",
+      "confidence": 0.98,
+      "citations": [
+        "Product Master Data",
+        "Compliance Matrix",
+        "Quality Requirements",
+        "Business Rules",
+        "Shipping Tariffs & Logistics Guide: Page 1, Page 3",
+        "Regulatory Compliance Guide: Page 1"
+      ],
+      "response_time_sec": 16.21,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S005",
+      "question": "What is the best price for 6000 kg of Citric Acid including volume discounts?",
+      "generated_answer": "The best price for 6000 kg of Citric Acid, including volume discounts, is \u20ac2.38 per kg, totaling \u20ac14,280.",
+      "confidence": 0.95,
+      "citations": [
+        "Pricing Tiers"
+      ],
+      "response_time_sec": 8.82,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S006",
+      "question": "Which products require REACH registration for shipping to EU?",
+      "generated_answer": "All chemical substances manufactured or imported into the EU in quantities greater than 1 tonne/year require REACH registration. Specifically, Citric Acid (BAR-CA-JB-001) is listed as compliant with REACH EC 1907/2006.",
+      "confidence": 0.95,
+      "citations": [
+        "Compliance Matrix",
+        "Regulatory Compliance Guide: Food & Pharmaceutical Ingredients, page 1"
+      ],
+      "response_time_sec": 11.5,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S007",
+      "question": "When is the next supplier audit due for Microcrystalline Cellulose (MCC)?",
+      "generated_answer": "The next supplier audit for Microcrystalline Cellulose (MCC) (BAR-MCC-JRS-010) is due on 2025-03-22.",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data",
+        "Quality Requirements"
+      ],
+      "response_time_sec": 6.03,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S008",
+      "question": "Compare lead times and prices: Citric Acid vs Sodium Benzoate",
+      "generated_answer": "Comparing Citric Acid and Sodium Benzoate:\n\n*   **Citric Acid (BAR-CA-JB-001):**\n    *   Lead Time: 2-3 weeks\n    *   Price DDP EMEA: \u20ac2.65/kg\n    *   Price EXW: \u20ac2.35/kg\n\n*   **Sodium Benzoate (BAR-SB-EKC-015):**\n    *   Lead Time: 3-4 weeks\n    *   Price DDP EMEA: \u20ac2.15/kg\n    *   Price EXW: \u20ac1.75/kg\n\nIn summary, Citric Acid generally has a shorter lead time (2-3 weeks) compared to Sodium Benzoate (3-4 weeks). Sodium Benzoate is more cost-effective with a DDP EMEA price of \u20ac2.15/kg, while Citric Acid is priced at \u20ac2.65/kg DDP EMEA.",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data"
+      ],
+      "response_time_sec": 8.8,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S009",
+      "question": "List all products suitable for pharmaceutical use with Ph.Eur. compliance",
+      "generated_answer": [
+        {
+          "Barentz SKU": "BAR-AA-DSM-003",
+          "Product Name": "Ascorbic Acid (Vitamin C) 97% FG/PG",
+          "Certifications": "ISO 9001, GMP, Ph.Eur., USP, Halal, Kosher, DMF (No. 12345)"
+        },
+        {
+          "Barentz SKU": "BAR-PG-BASF-005",
+          "Product Name": "Propylene Glycol USP/EP",
+          "Certifications": "ISO 9001, Ph.Eur., USP, Kosher, Halal"
+        },
+        {
+          "Barentz SKU": "BAR-VB-BASF-006",
+          "Product Name": "Vitamin B5 (D-Panthenol) USP",
+          "Certifications": "ISO 9001, GMP, Ph.Eur., USP, Kosher"
+        },
+        {
+          "Barentz SKU": "BAR-MCC-JRS-010",
+          "Product Name": "Microcrystalline Cellulose PH 102",
+          "Certifications": "GMP, ISO 9001, Ph.Eur., USP, DMF (No. 6789), Halal, Kosher"
+        },
+        {
+          "Barentz SKU": "BAR-VIV-JRS-011",
+          "Product Name": "Vivapur 102 (MCC high density)",
+          "Certifications": "GMP, ISO 9001, Ph.Eur., USP, DMF, Halal"
+        },
+        {
+          "Barentz SKU": "BAR-DEX-ROQ-013",
+          "Product Name": "Dextrose Monohydrate Food/Pharma Grade",
+          "Certifications": "ISO 22000, FSSC 22000, Ph.Eur., USP, Kosher, Halal"
+        },
+        {
+          "Barentz SKU": "BAR-GLY-UNI-014",
+          "Product Name": "Glycerol USP/Ph.Eur. 99.7%",
+          "Certifications": "ISO 9001, USP, Ph.Eur., Kosher, Halal"
+        },
+        {
+          "Barentz SKU": "BAR-MGS-PGR-017",
+          "Product Name": "Magnesium Stearate Vegetable Ph.Eur./USP",
+          "Certifications": "GMP, ISO 9001, Ph.Eur., USP, Kosher, Halal, DMF"
+        },
+        {
+          "Barentz SKU": "BAR-PVP-ASH-019",
+          "Product Name": "Povidone (PVP K30) USP/EP",
+          "Certifications": "GMP, ISO 9001, Ph.Eur., USP, DMF (No. 4321)"
+        },
+        {
+          "Barentz SKU": "BAR-PEG-BRE-020",
+          "Product Name": "PEG-400 (Polyethylene Glycol) NF/EP",
+          "Certifications": "ISO 9001, Ph.Eur., USP, DMF"
+        }
+      ],
+      "confidence": 0.98,
+      "citations": [
+        "Product Master Data",
+        "Decision Scenarios"
+      ],
+      "response_time_sec": 22.54,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S010",
+      "question": "What documentation is needed to ship Ascorbic Acid to Germany with temperature control?",
+      "generated_answer": "To ship Ascorbic Acid (BAR-AA-DSM-003) to Germany with temperature control (2-8\u00b0C), the required documentation includes: EUR1, Safety Data Sheet (SDS), Certificate of Analysis (CoA), GMP certificate, and the Drug Master File (DMF) No. 12345.",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data",
+        "Logistics Matrix",
+        "Compliance Matrix"
+      ],
+      "response_time_sec": 16.7,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S011",
+      "question": "What are the EU usage restrictions for Sodium Benzoate?",
+      "generated_answer": "For Sodium Benzoate (E211) in the EU, under Food Additives Regulation EC 1333/2008, the maximum permitted usage level is 150 mg/kg in food, where it functions as a preservative.",
+      "confidence": 0.95,
+      "citations": [
+        "Compliance Matrix",
+        "Regulatory Compliance Guide, page 1"
+      ],
+      "response_time_sec": 8.58,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S012",
+      "question": "Calculate total landed cost for 6000 kg Citric Acid shipped from Basel to Netherlands by road",
+      "generated_answer": "The total landed cost for 6000 kg of Citric Acid shipped from Basel to the Netherlands by road is \u20ac15,180.",
+      "confidence": 0.95,
+      "citations": [
+        "Pricing Tiers",
+        "Logistics Matrix",
+        "Product Master Data",
+        "Barentz EMEA Shipping Tariffs & Logistics Guide: Page 1"
+      ],
+      "response_time_sec": 9.78,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S013",
+      "question": "Which food-grade products have Halal certification?",
+      "generated_answer": "The following food-grade products have Halal certification:\n- BAR-CA-JB-001: Citric Acid Anhydrous BP/USP/FCC\n- BAR-LA-JB-002: Lactic Acid 80% FG\n- BAR-PG-BASF-005: Propylene Glycol USP/EP\n- BAR-XG-CPK-007: Xanthan Gum 80 Mesh Food Grade\n- BAR-SL-COR-009: Sodium Lactate 60% FCC\n- BAR-MAL-ROQ-012: Maltodextrin DE 10-12 Food Grade\n- BAR-DEX-ROQ-013: Dextrose Monohydrate Food/Pharma Grade\n- BAR-GLY-UNI-014: Glycerol USP/Ph.Eur. 99.7%\n- BAR-SB-EKC-015: Sodium Benzoate Granular FCC/EP\n- BAR-PS-EKC-016: Potassium Sorbate Granular FCC",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data"
+      ],
+      "response_time_sec": 7.52,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S014",
+      "question": "Which supplier audits are due in the next 3 months?",
+      "generated_answer": "Based on the provided data, there are no supplier audits due in the next 3 months. All 'Next Audit Due' dates listed in the 'Quality Requirements' sheet are in 2025, while the context indicates the current year is 2024 (e.g., 'Supplier Audit Date' and PDF document effective date).",
+      "confidence": 0.95,
+      "citations": [
+        "Quality Requirements",
+        "SOURCE FILE: DM_Report_MASTER_Complete.xlsx",
+        "PDF Page 1"
+      ],
+      "response_time_sec": 14.1,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S015",
+      "question": "Find a pharma-grade preservative with Kosher certification, available within 3 weeks, shippable to Germany, suitable for topical formulations",
+      "generated_answer": "The closest product matching your criteria for a pharma-grade preservative with Kosher certification, suitable for topical formulations, and shippable to Germany, is **Sodium Benzoate Granular FCC/EP (Barentz SKU: BAR-SB-EKC-015)**. However, its lead time of 3-4 weeks does not strictly meet the \"within 3 weeks\" requirement.",
+      "confidence": 0.9,
+      "citations": [
+        "Product Master Data",
+        "Quality Requirements",
+        "Logistics Matrix",
+        "Regulatory Compliance Guide (PDF page 1)",
+        "Shipping Tariffs & Logistics Guide (PDF page 1)"
+      ],
+      "response_time_sec": 50.62,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S016",
+      "question": "What is the most cost-effective pharma excipient per kg for orders over 2000 kg?",
+      "generated_answer": "The most cost-effective pharma excipient for orders over 2000 kg is Propylene Glycol USP/EP (BAR-PG-BASF-005) at \u20ac1.68/kg.",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data",
+        "Pricing Tiers"
+      ],
+      "response_time_sec": 16.86,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S017",
+      "question": "List all products with EU compliance reviews overdue (>12 months since last review)",
+      "generated_answer": "Based on the provided Compliance Matrix, none of the EU compliance reviews are currently overdue by more than 12 months. All 'Last Review' dates for EU regulations are in 2024, with corresponding 'Next Review' dates in 2025, indicating that they are up-to-date.",
+      "confidence": 0.95,
+      "citations": [
+        "Compliance Matrix"
+      ],
+      "response_time_sec": 10.23,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S018",
+      "question": "What is the fastest delivery option for 1500 kg Xanthan Gum to Netherlands, and what is the total cost?",
+      "generated_answer": "The fastest delivery option for 1500 kg of Xanthan Gum to the Netherlands is by road transport, with an estimated transit time of 1-2 days. The total cost will be \u20ac18,795.00.",
+      "confidence": 0.95,
+      "citations": [
+        "Product Master Data",
+        "Pricing Tiers",
+        "Logistics Matrix",
+        "Shipping Tariffs & Logistics Guide (PDF, page 1)"
+      ],
+      "response_time_sec": 17.96,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S019",
+      "question": "Which products in our system have retest periods shorter than 24 months?",
+      "generated_answer": "The products with retest periods shorter than 24 months are:\n- BAR-LA-JB-002 (Lactic Acid 80% FG) with a retest period of 12 months.\n- BAR-SL-COR-009 (Sodium Lactate 60% FCC) with a retest period of 12 months.",
+      "confidence": 0.95,
+      "citations": [
+        "Quality Requirements"
+      ],
+      "response_time_sec": 6.46,
+      "status": "PASS"
+    },
+    {
+      "question_id": "S020",
+      "question": "Compare FDA vs EU regulatory requirements for Ascorbic Acid",
+      "generated_answer": "For Ascorbic Acid (BAR-AA-DSM-003), the regulatory requirements differ between the EU and USA for both food additive and pharmaceutical applications:\n\n**EU Regulatory Requirements:**\n*   **Food Additive**: Approved as E300 under EC 1333/2008, with a 'Quantum satis' maximum level for use as an antioxidant in all foods. (Compliance Status: Approved (E300))\n*   **Pharmaceutical**: Compliant with Pharma Directive 2001/83/EC, adhering to European Pharmacopoeia (Ph.Eur.) monographs. Required documentation includes a Ph.Eur. Certificate of Analysis (CoA) and a Drug Master File (DMF), such as DMF No. 12345. GMP certification and compliance with Ph.Eur. testing methods are also required.\n\n**USA Regulatory Requirements:**\n*   **Food Additive**: Generally Recognized as Safe (GRAS) under FDA 21 CFR 182.3013, with usage under Good Manufacturing Practice (GMP) conditions. (Compliance Status: GRAS)\n*   **Pharmaceutical**: Approved under FDA Drug Master File regulations (DMF No. 12345) and requires compliance with USP-NF monographs. Required documentation includes a USP CoA. Additionally, pharmaceutical ingredients need DMF Type II submission to FDA, cGMP certification, USP or NF compliance, listing in the Inactive Ingredient Database (IID) for excipients, and annual FDA establishment registration.",
+      "confidence": 1.0,
+      "citations": [
+        "Compliance Matrix",
+        "Product Master Data",
+        "Regulatory Compliance Guide - Food & Pharmaceutical Ingredients.pdf Page 1",
+        "Regulatory Compliance Guide - Food & Pharmaceutical Ingredients.pdf Page 2",
+        "Regulatory Compliance Guide - Food & Pharmaceutical Ingredients.pdf Page 3"
+      ],
+      "response_time_sec": 14.14,
+      "status": "PASS"
+    }
+  ]
+}

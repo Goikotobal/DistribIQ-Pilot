@@ -1,0 +1,18 @@
+{
+    "comparison": {
+        "provai_custom": {
+            "stack": "LangChain + Chroma + Claude Sonnet",
+            "cost_per_query": 0.0135,
+            "annual_cost_est": 98600
+        },
+        "distribiq_managed": {
+            "stack": "Gemini 1.5 Flash (Long Context)",
+            "cost_per_query": 0.0018,
+            "annual_cost_est": 13140
+        }
+    },
+    "savings": {
+        "per_query_pct": "86.6%",
+        "annual_value": 85460
+    }
+}
