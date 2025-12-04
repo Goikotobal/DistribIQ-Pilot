@@ -12,6 +12,16 @@ except ImportError:
     from src.agent import prepare_knowledge_base, solver_agent
 
 # --- PAGE CONFIGURATION ---
+
+# Inside src/app.py
+
+with st.sidebar:
+    # ✅ Add this line (Ensure logo.png is in the same folder as app.py)
+    st.logo("src/DistribIQ_logo.png", icon_image="src/DistribIQ_logo.png") 
+    
+    # (The rest of your code...)
+    st.title("DistribIQ Control")
+
 st.set_page_config(
     page_title="DistribIQ | Barentz AI",
     page_icon="🧬",
