@@ -3,30 +3,18 @@ import time
 import json
 import uuid
 
+# ✅ FIX 1: This MUST be the very first Streamlit command (Line 6)
+st.set_page_config(
+    page_title="DistribIQ | Barentz AI",
+    page_icon="src/logo.png", # Use your new logo as the browser tab icon too!
+    layout="wide"
+)
+
 # ✅ NEW IMPORT LOGIC
-# Since app.py and agent.py are neighbors in 'src', we import directly:
 try:
     from agent import prepare_knowledge_base, solver_agent
 except ImportError:
-    # Fallback for some execution environments
     from src.agent import prepare_knowledge_base, solver_agent
-
-# --- PAGE CONFIGURATION ---
-
-# Inside src/app.py
-
-with st.sidebar:
-    # ✅ Add this line (Ensure logo.png is in the same folder as app.py)
-    st.logo("src/DistribIQ_logo.png", icon_image="src/DistribIQ_logo.png") 
-    
-    # (The rest of your code...)
-    st.title("DistribIQ Control")
-
-st.set_page_config(
-    page_title="DistribIQ | Barentz AI",
-    page_icon="🧬",
-    layout="wide"
-)
 
 # --- CUSTOM CSS (Branding) ---
 st.markdown("""
@@ -40,7 +28,13 @@ st.markdown("""
 
 # --- SIDEBAR (Settings & Status) ---
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png", width=50) # Placeholder or Barentz logo
+    # ✅ FIX 2: Use st.image for a BIG logo (st.logo is too small)
+    # 'use_container_width=True' makes it fill the sidebar width
+    try:
+        st.image("src/logo.png", use_container_width=True)
+    except:
+        st.warning("Logo not found: src/logo.png")
+
     st.title("DistribIQ Control")
     st.caption(f"🚀 Engine: Gemini 2.5 Flash")
     
@@ -51,13 +45,10 @@ with st.sidebar:
         st.session_state.kb_loaded = False
         st.session_state.kb_data = None
 
-    status_container = st.empty()
-    
     if not st.session_state.kb_loaded:
         if st.button("🔄 Load Knowledge Base"):
             with st.spinner("Ingesting Excel & PDFs..."):
                 try:
-                    # Using the function from your system
                     data = prepare_knowledge_base()
                     
                     if data["excel_text"] or data["pdf_handles"]:
@@ -65,7 +56,7 @@ with st.sidebar:
                         st.session_state.kb_loaded = True
                         st.success("✅ System Ready")
                     else:
-                        st.error("❌ No data found in docs/")
+                        st.error("❌ No data found in data/docs/")
                 except Exception as e:
                     st.error(f"Error: {e}")
     else:
@@ -89,11 +80,16 @@ if "messages" not in st.session_state:
 # Display Chat History
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        # Check if content is JSON (our structured answer) or plain text
         try:
             if isinstance(msg["content"], str) and msg["content"].strip().startswith("{"):
                 data = json.loads(msg["content"])
                 st.markdown(data.get("answer", "No answer"))
+                
+                # Show Explanation (if available)
+                if data.get("explanation"):
+                    with st.expander("🕵️ How I calculated this"):
+                        st.markdown(data["explanation"])
+                        
                 if data.get("citations"):
                     st.caption(f"📚 Source: {', '.join(data['citations'])}")
             else:
@@ -103,22 +99,18 @@ for msg in st.session_state.messages:
 
 # --- USER INPUT HANDLER ---
 if prompt := st.chat_input("Ask about products, shipping, or regulations..."):
-    # 1. Check if KB is ready
     if not st.session_state.kb_loaded:
         st.error("⚠️ Please load the Knowledge Base in the sidebar first!")
         st.stop()
 
-    # 2. Add User Message
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # 3. Generate Response
     with st.chat_message("assistant"):
         with st.spinner("🧠 Analyzing Decision Matrices..."):
             start_time = time.time()
             
-            # Construct State
             state = {
                 "question_id": str(uuid.uuid4())[:8],
                 "question": prompt,
@@ -127,30 +119,28 @@ if prompt := st.chat_input("Ask about products, shipping, or regulations..."):
                 "final_answer": {}
             }
             
-            # CALL THE AGENT
             try:
                 result_state = solver_agent(state)
                 final = result_state["final_answer"]
                 
-                # 1. Display Main Answer
+                # 1. Answer
                 st.markdown(final.get("answer", "I could not generate an answer."))
                 
-                # 2. Display Explanation (New Feature!)
+                # 2. Reasoning
                 if final.get("explanation"):
                     with st.expander("🕵️ How I calculated this"):
                         st.markdown(final["explanation"])
 
-                # 3. Display Sources
+                # 3. Sources
                 if final.get("citations"):
                     st.caption(f"📚 Sources: {', '.join(final['citations'])}")
                 
-                # 4. Debug Info
+                # 4. Debug Metadata
                 with st.expander("⚙️ Technical Metadata"):
-                    st.write(f"**Confidence Score:** {final.get('confidence', 0.0)}")
+                    st.write(f"**Confidence:** {final.get('confidence', 0.0)}")
                     st.write(f"**Latency:** {round(time.time() - start_time, 2)}s")
                     st.json(final)
                 
-                # Save to history
                 st.session_state.messages.append({"role": "assistant", "content": json.dumps(final)})
                 
             except Exception as e:
