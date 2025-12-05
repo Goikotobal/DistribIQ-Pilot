@@ -28,25 +28,35 @@ st.markdown("""
 
 # --- SIDEBAR (Settings & Status) ---
 with st.sidebar:
-    # ✅ FIX 2: Use st.image for a BIG logo (st.logo is too small)
-    # 'use_container_width=True' makes it fill the sidebar width
-    try:
-        st.image("src/logo.png", use_container_width=True)
-    except:
-        st.warning("Logo not found: src/logo.png")
+    # 1. THE LOGO (Robust Path)
+    import os
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(script_dir, "logo.png")
 
-    st.title("DistribIQ Control")
-    st.caption(f"🚀 Engine: Gemini 2.5 Flash")
-    
+    try:
+        # Check if file exists first to avoid ugly errors
+        if os.path.exists(logo_path):
+            # Pass the path variable you created on line 34
+            st.image(logo_path, use_column_width=True)
+        else:
+            st.warning(f"⚠️ Logo not found at: {logo_path}")
+            # Fallback title if logo is missing
+            st.markdown("## DistribIQ") 
+    except Exception as e:
+        st.error(f"Logo Error: {e}")
+
+    # 2. TITLE & INFO
+    st.title("Control Panel")
+    st.caption("🚀 Engine: Gemini 2.5 Flash")
     st.divider()
     
-    # KNOWLEDGE BASE LOADER
+    # 3. KNOWLEDGE BASE LOADER
     if "kb_loaded" not in st.session_state:
         st.session_state.kb_loaded = False
         st.session_state.kb_data = None
 
     if not st.session_state.kb_loaded:
-        if st.button("🔄 Load Knowledge Base"):
+        if st.button("🔄 Load Knowledge Base", type="primary"):
             with st.spinner("Ingesting Excel & PDFs..."):
                 try:
                     data = prepare_knowledge_base()
@@ -55,13 +65,15 @@ with st.sidebar:
                         st.session_state.kb_data = data
                         st.session_state.kb_loaded = True
                         st.success("✅ System Ready")
+                        time.sleep(1) # Small pause to let user see the success
+                        st.rerun()    # Refresh to unlock the chat
                     else:
                         st.error("❌ No data found in data/docs/")
                 except Exception as e:
                     st.error(f"Error: {e}")
     else:
-        st.success(f"✅ Knowledge Base Active")
-        st.info(f"📄 Files Loaded: 3\n(Excel Master + 2 PDFs)")
+        st.success("✅ Knowledge Base Active")
+        st.info("Files Loaded:\n- Product Master (Excel)\n- Shipping Tariffs (PDF)\n- Compliance Guide (PDF)")
         if st.button("Reload Data"):
             st.session_state.kb_loaded = False
             st.rerun()

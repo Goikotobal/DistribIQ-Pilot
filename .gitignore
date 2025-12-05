@@ -1,9 +1,9 @@
-# --- Security (NEVER UPLOAD) ---
+# --- Security (CRITICAL) ---
 .env
 .env.local
 .streamlit/secrets.toml
 
-# --- Python System ---
+# --- Python System (Clutter) ---
 __pycache__/
 *.pyc
 .DS_Store
@@ -13,7 +13,8 @@ __pycache__/
 venv/
 env/
 
-# --- Data Privacy ---
-# Uncomment the line below if the Excel/PDFs are confidential 
-# and you DON'T want them on GitHub servers.
-# data/docs/*
+# --- Proprietary Data (Barentz Confidential) ---
+# It is safer to ignore the real files. 
+# You can instruct the client to "drop their files here" to run it.
+data/docs/*
+!data/docs/.gitkeep  # (Optional: keeps the folder structure but empty)
