@@ -88,19 +88,42 @@ def extract_and_display_table(input_data):
 
     return False
 
-# --- 🛠️ HELPER 2: EXPLANATION BEAUTIFIER ---
+# --- 🎨 HELPER 2: EXPLANATION BEAUTIFIER ---
 def display_pretty_explanation(text):
     """
     Formats the explanation text to be easier to read using Markdown spacing.
     """
     if text:
-        with st.expander("🕵️ How I calculated this", expanded=False):
-            # 1. Add double newlines before numbers (e.g., "1." -> "\n\n**1.**")
-            # This forces Streamlit to render them as a proper list
-            formatted_text = re.sub(r'(\d+\.)', r'\n\n\1', text)
+        # Split into steps/sections
+        lines = text.split('\n')
+        formatted_lines = []
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Number at start = step (make bold)
+            if line and line[0].isdigit() and '.' in line[:3]:
+                formatted_lines.append(f"\n**{line}**\n")
             
-            # 2. Render inside a clean info box
-            st.info(formatted_text)
+            # Contains "filtered" or "looked up" = action (add bullet)
+            elif any(word in line.lower() for word in ['filtered', 'looked', 'identified', 'compiled', 'reviewed']):
+                formatted_lines.append(f"• {line}")
+            
+            # Contains sheet names in quotes = data source (make italic)
+            elif "'" in line and 'sheet' in line.lower():
+                formatted_lines.append(f"*{line}*")
+            
+            # Default = regular line
+            else:
+                formatted_lines.append(line)
+        
+        # Join with proper spacing
+        formatted_text = '\n\n'.join(formatted_lines)
+        
+        # Display with nice markdown
+        st.markdown(formatted_text)
 
 # --- SIDEBAR ---
 with st.sidebar:
