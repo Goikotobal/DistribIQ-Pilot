@@ -8,7 +8,7 @@ import re
 
 # 1. PAGE CONFIG
 st.set_page_config(
-    page_title="DistribIQ | Barentz AI",
+    page_title="DistribIQ",
     page_icon="src/logo.png",
     layout="wide"
 )
@@ -76,11 +76,11 @@ def extract_and_display_table(input_data):
         
         # Smart Column Sorting
         cols = list(df.columns)
-        priority = ['Barentz SKU', 'Product Name', 'EU Compliance', 'EU Compliance Status']
+        priority = ['PharmaCo SKU', 'Product Name', 'EU Compliance', 'EU Compliance Status']
         sorted_cols = [c for c in priority if c in cols] + [c for c in cols if c not in priority]
         
         df = df[sorted_cols]
-        df = df.rename(columns={'Barentz SKU': 'SKU', 'Product Name': 'Product'})
+        df = df.rename(columns={'PharmaCo SKU': 'SKU', 'Product Name': 'Product'})
 
         st.success(f"✅ Found {len(df)} products:")
         st.dataframe(df, use_container_width=True, hide_index=True)
