@@ -94,46 +94,35 @@ def display_pretty_explanation(text):
     Formats the explanation text in a visually distinct way.
     """
     if text:
-        # Add some spacing before
-        st.markdown("---")
-        
-        # Create a nice colored container
-        st.markdown("""
-        <div style="background-color: #f0f8ff; padding: 20px; border-radius: 10px; border-left: 5px solid #4CAF50;">
-        """, unsafe_allow_html=True)
-        
-        st.markdown("### 🧮 How I Calculated This")
-        
-        # Split into steps
-        lines = text.split('\n')
-        step_number = 1
-        
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
+        # Use Streamlit's info box for visual distinction
+        with st.expander("🧮 **How I Calculated This**", expanded=False):
+            # Split into steps
+            lines = text.split('\n')
+            step_number = 1
             
-            # If line starts with number, it's a step
-            if line and line[0].isdigit() and '.' in line[:3]:
-                st.markdown(f"**Step {step_number}:**")
-                st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;{line[line.index('.')+1:].strip()}")
-                step_number += 1
-                st.markdown("")  # Add spacing
-            
-            # If it contains action words, make it a bullet
-            elif any(word in line.lower() for word in ['filtered', 'looked', 'identified', 'compiled', 'reviewed', 'extracted', 'cross-referenced']):
-                st.markdown(f"• {line}")
-            
-            # Sheet names
-            elif "'" in line and 'sheet' in line.lower():
-                st.markdown(f"*📊 Data source: {line}*")
-            
-            # Regular line
-            else:
-                st.markdown(line)
-        
-        # Close the colored container
-        st.markdown("</div>", unsafe_allow_html=True)
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # If line starts with number, it's a main step
+                if line and line[0].isdigit() and '.' in line[:3]:
+                    st.markdown(f"#### 📌 Step {step_number}")
+                    st.markdown(f"{line[line.index('.')+1:].strip()}")
+                    step_number += 1
+                    st.markdown("")  # spacing
+                
+                # Action words = indented bullet
+                elif any(word in line.lower() for word in ['filtered', 'looked', 'identified', 'compiled', 'reviewed', 'extracted', 'cross-referenced']):
+                    st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;➤ {line}")
+                
+                # Sheet names = data source
+                elif "'" in line and 'sheet' in line.lower():
+                    st.markdown(f"*📊 {line}*")
+                
+                # Regular line
+                else:
+                    st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;{line}")
 
 # --- SIDEBAR ---
 with st.sidebar:
