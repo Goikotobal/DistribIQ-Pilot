@@ -42,10 +42,10 @@ def prepare_knowledge_base():
     base_folder = os.path.join(current_dir, "..", "data", "docs")
     
     # Files to look for
-    excel_file = "DM_Report_MASTER_Complete.xlsx"
+    excel_file = "DM_Report_MASTER_Generic.xlsx"
     pdf_files = [
-        "Shipping_Tariffs_EMEA_2024.pdf",
-        "Regulatory_Compliance_Guide_EU_USA.pdf"
+        "Shipping_Tariffs_EMEA_Generic.pdf",
+        "Regulatory_Compliance_Guide_Generic.pdf"
     ]
     
     knowledge_context = {
@@ -147,7 +147,7 @@ def solver_agent(state: DistribIQState):
         
         prompt_parts = [
             f"""
-            You are an expert assistant for Barentz. 
+            You are an expert assistant for a pharmaceutical distribution company. 
             Answer the question using the provided context.
             
             CONTEXT 1 (Excel Data converted to Text):
