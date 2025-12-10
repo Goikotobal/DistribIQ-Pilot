@@ -91,39 +91,49 @@ def extract_and_display_table(input_data):
 # --- 🎨 HELPER 2: EXPLANATION BEAUTIFIER ---
 def display_pretty_explanation(text):
     """
-    Formats the explanation text to be easier to read using Markdown spacing.
+    Formats the explanation text in a visually distinct way.
     """
     if text:
-        # Split into steps/sections
+        # Add some spacing before
+        st.markdown("---")
+        
+        # Create a nice colored container
+        st.markdown("""
+        <div style="background-color: #f0f8ff; padding: 20px; border-radius: 10px; border-left: 5px solid #4CAF50;">
+        """, unsafe_allow_html=True)
+        
+        st.markdown("### 🧮 How I Calculated This")
+        
+        # Split into steps
         lines = text.split('\n')
-        formatted_lines = []
+        step_number = 1
         
         for line in lines:
             line = line.strip()
             if not line:
                 continue
-                
-            # Number at start = step (make bold)
+            
+            # If line starts with number, it's a step
             if line and line[0].isdigit() and '.' in line[:3]:
-                formatted_lines.append(f"\n**{line}**\n")
+                st.markdown(f"**Step {step_number}:**")
+                st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;{line[line.index('.')+1:].strip()}")
+                step_number += 1
+                st.markdown("")  # Add spacing
             
-            # Contains "filtered" or "looked up" = action (add bullet)
-            elif any(word in line.lower() for word in ['filtered', 'looked', 'identified', 'compiled', 'reviewed']):
-                formatted_lines.append(f"• {line}")
+            # If it contains action words, make it a bullet
+            elif any(word in line.lower() for word in ['filtered', 'looked', 'identified', 'compiled', 'reviewed', 'extracted', 'cross-referenced']):
+                st.markdown(f"• {line}")
             
-            # Contains sheet names in quotes = data source (make italic)
+            # Sheet names
             elif "'" in line and 'sheet' in line.lower():
-                formatted_lines.append(f"*{line}*")
+                st.markdown(f"*📊 Data source: {line}*")
             
-            # Default = regular line
+            # Regular line
             else:
-                formatted_lines.append(line)
+                st.markdown(line)
         
-        # Join with proper spacing
-        formatted_text = '\n\n'.join(formatted_lines)
-        
-        # Display with nice markdown
-        st.markdown(formatted_text)
+        # Close the colored container
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # --- SIDEBAR ---
 with st.sidebar:
