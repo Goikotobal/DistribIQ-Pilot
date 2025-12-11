@@ -140,47 +140,61 @@ def prepare_knowledge_base():
 
 # --- 4. THE AGENT (Updated with Reasoning) ---
 def solver_agent(state: DistribIQState):
-    print(f"\n⚙️ [DistribIQ] Thinking about: {state['question']}...")
+    """
+    Main solver agent that answers questions using the knowledge base.
+    """
+    model = genai.GenerativeModel(MODEL_NAME)
+    
+    prompt_parts = [
+        f"""You are an expert assistant for a pharmaceutical distribution company.
+        
+        CRITICAL RULES FOR DATA INTERPRETATION:
+        1. "EU compliant" or "EU Compliant" means products with explicit 'Compliant' or 'Approved' status in the 'Compliance Matrix' sheet where Region='EU'
+        2. "Certified" means products with certifications listed in the 'Product Master Data' sheet
+        3. Always use the SAME filtering logic for identical questions
+        4. When filtering by compliance, check the 'Compliance Matrix' sheet first
+        5. Be consistent - identical questions should return identical results
+        
+        When answering queries about compliance or certifications:
+        - Step 1: Filter 'Compliance Matrix' for explicit compliance status
+        - Step 2: Cross-reference with 'Product Master Data' for certifications
+        - Step 3: Return ONLY products meeting BOTH criteria
+        
+        Answer the question using the provided context.
+        
+        CONTEXT 1 (Excel Data converted to Text):
+        {state['context_text']}
+        
+        CONTEXT 2 (Attached PDF Documents):
+        (See attached files)
+        
+        Question: {state['question']}
+        
+        Output format (JSON):
+        {{
+            "answer": "The direct answer to the user's question.",
+            "explanation": "A concise, step-by-step explanation of how you derived the answer. Mention specific data points used (e.g. 'Found Tier 3 price of €2.38, added €0.15 freight').",
+            "citations": ["Sheet Name", "PDF Page X"],
+            "confidence": 0.95
+        }}
+        """
+    ]
+    
+    if state['context_files']:
+        prompt_parts.extend(state['context_files'])
     
     try:
-        model = genai.GenerativeModel(MODEL_NAME)
-        
-        prompt_parts = [
-            f"""
-            You are the AI assistant for **PharmaCo**, a distributor of food and pharmaceutical ingredients. 
-            Answer the question using the provided context.
-            
-            CONTEXT 1 (Excel Data converted to Text):
-            {state['context_text']}
-            
-            CONTEXT 2 (Attached PDF Documents):
-            (See attached files)
-            
-            Question: {state['question']}
-            
-            Output format (JSON):
-            {{
-                "answer": "The direct answer to the user's question.",
-                "explanation": "A concise, step-by-step explanation of how you derived the answer. Mention specific data points used (e.g. 'Found Tier 3 price of €2.38, added €0.15 freight').",
-                "citations": ["Sheet Name", "PDF Page X"],
-                "confidence": 0.95
-            }}
-            """
-        ]
-        
-        if state['context_files']:
-            prompt_parts.extend(state['context_files'])
-        
         response = model.generate_content(
             prompt_parts,
             generation_config={"response_mime_type": "application/json"}
         )
-        state["final_answer"] = json.loads(response.text)
         
+        state["final_answer"] = json.loads(response.text)
+    
     except Exception as e:
         print(f"   ❌ AI Error: {e}")
         state["final_answer"] = {"error": str(e)}
-        
+    
     return state
 
 # --- 5. RUNNER ---
