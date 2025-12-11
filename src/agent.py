@@ -147,7 +147,7 @@ def solver_agent(state: DistribIQState):
         
         prompt_parts = [
             f"""
-            You are an expert assistant for Barentz. 
+            You are the AI assistant for **PharmaCo**, a distributor of food and pharmaceutical ingredients. 
             Answer the question using the provided context.
             
             CONTEXT 1 (Excel Data converted to Text):
