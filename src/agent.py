@@ -13,6 +13,12 @@ import pandas as pd
 load_dotenv()
 API_KEY = os.environ.get("GOOGLE_API_KEY")
 
+# Debug: Print first 8 chars of API key to verify it's loaded
+if API_KEY:
+    print(f"🔑 API Key loaded: {API_KEY[:8]}...")
+else:
+    print("🔑 API Key: None")
+
 # ✅ UPDATED: Using the correct Flash model version
 MODEL_NAME = "gemini-2.0-flash"
 
