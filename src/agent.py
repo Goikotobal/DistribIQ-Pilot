@@ -11,13 +11,22 @@ import pandas as pd
 
 # --- 1. CONFIGURATION ---
 load_dotenv()
-API_KEY = os.environ.get("GOOGLE_API_KEY")
+
+# Try to get API key from Streamlit secrets first, then fall back to environment variables
+API_KEY = None
+try:
+    import streamlit as st
+    API_KEY = st.secrets["GOOGLE_API_KEY"]
+    print("[DEBUG] API Key loaded from Streamlit secrets")
+except:
+    API_KEY = os.environ.get("GOOGLE_API_KEY")
+    print("[DEBUG] API Key loaded from environment variables")
 
 # Debug: Print first 8 chars of API key to verify it's loaded
 if API_KEY:
-    print(f"🔑 API Key loaded: {API_KEY[:8]}...")
+    print(f"[DEBUG] API Key loaded: {API_KEY[:8]}...")
 else:
-    print("🔑 API Key: None")
+    print("[DEBUG] API Key: None")
 
 # ✅ UPDATED: Using the correct Flash model version
 MODEL_NAME = "gemini-2.0-flash"
