@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import pytz  # ✅ NEW: For timezone support
 from typing import TypedDict, List, Any
-import google.generativeai as genai
+from google import genai
 from langgraph.graph import StateGraph, END
 from dotenv import load_dotenv
 import pandas as pd
@@ -34,9 +34,11 @@ MODEL_NAME = "gemini-2.0-flash"
 # ✅ NEW: Timezone configuration (change to your preferred timezone)
 TIMEZONE = "Europe/Amsterdam"  # Options: "Europe/Berlin", "America/New_York", etc.
 
+# ✅ UPDATED: Using new google.genai SDK with client-based approach
 if API_KEY:
-    genai.configure(api_key=API_KEY)
+    client = genai.Client(api_key=API_KEY)
 else:
+    client = None
     print("⚠️ No API Key found. Running in MOCK MODE.")
 
 # --- 2. STATE DEFINITION ---
@@ -135,10 +137,10 @@ def prepare_knowledge_base():
         full_path = os.path.join(base_folder, filename)
         if os.path.exists(full_path):
             try:
-                f = genai.upload_file(full_path)
-                while f.state.name == "PROCESSING":
+                f = client.files.upload(path=full_path)
+                while f.state == "PROCESSING":
                     time.sleep(1)
-                    f = genai.get_file(f.name)
+                    f = client.files.get(name=f.name)
                 knowledge_context["pdf_handles"].append(f)
                 print(f"   ✅ PDF Ready: {filename}")
             except Exception as e:
@@ -154,71 +156,71 @@ def solver_agent(state: DistribIQState):
     time_context = get_business_context()
     
     try:
-        model = genai.GenerativeModel(MODEL_NAME)
-        
-        # ✅ UPDATED PROMPT: Now includes real-time awareness
-        prompt_parts = [
-            f"""
-            You are DistribIQ, an expert AI assistant for Barentz specializing in supply chain, 
-            product information, logistics, and regulatory compliance.
-            
-            ═══════════════════════════════════════════════════════════════
-            📅 CURRENT DATE & TIME CONTEXT
-            ═══════════════════════════════════════════════════════════════
-            Today is: {time_context['full_datetime']}
-            Day: {time_context['day_of_week']}
-            Week: {time_context['week_number']} of {time_context['year']}
-            Quarter: {time_context['quarter']}
-            Business Hours: {time_context['business_status']}
-            
-            USE THIS DATE FOR:
-            - Calculating lead times and delivery dates
-            - Determining shipping schedules (exclude weekends if needed)
-            - Checking if tariffs/regulations are current
-            - Estimating arrival dates based on transit times
-            - Any date-related calculations
-            
-            ═══════════════════════════════════════════════════════════════
-            📊 CONTEXT 1: PRODUCT & PRICING DATA (Excel)
-            ═══════════════════════════════════════════════════════════════
-            {state['context_text']}
-            
-            ═══════════════════════════════════════════════════════════════
-            📄 CONTEXT 2: ATTACHED PDF DOCUMENTS
-            ═══════════════════════════════════════════════════════════════
-            (See attached files for Shipping Tariffs and Compliance Guide)
-            
-            ═══════════════════════════════════════════════════════════════
-            ❓ USER QUESTION
-            ═══════════════════════════════════════════════════════════════
-            {state['question']}
-            
-            ═══════════════════════════════════════════════════════════════
-            📋 RESPONSE INSTRUCTIONS
-            ═══════════════════════════════════════════════════════════════
-            1. Answer precisely using the provided data
-            2. For lead times: Calculate actual delivery dates from TODAY ({time_context['date']})
-            3. For shipping: Consider business days only (Mon-Fri)
-            4. Show your calculations step-by-step
-            5. Cite specific sources (sheet names, PDF sections)
-            
-            Output format (JSON):
-            {{
-                "answer": "The direct answer to the user's question. If calculating dates, show the actual calendar date.",
-                "explanation": "Step-by-step explanation. For date calculations, show: Today ({time_context['date']}) + X days = [calculated date]",
-                "citations": ["Sheet Name or PDF Section"],
-                "confidence": 0.95,
-                "timestamp": "{time_context['full_datetime']}"
-            }}
-            """
-        ]
-        
+        # ✅ UPDATED: Build prompt parts with new SDK
+        prompt_text = f"""
+You are DistribIQ, an expert AI assistant for Barentz specializing in supply chain,
+product information, logistics, and regulatory compliance.
+
+═══════════════════════════════════════════════════════════════
+📅 CURRENT DATE & TIME CONTEXT
+═══════════════════════════════════════════════════════════════
+Today is: {time_context['full_datetime']}
+Day: {time_context['day_of_week']}
+Week: {time_context['week_number']} of {time_context['year']}
+Quarter: {time_context['quarter']}
+Business Hours: {time_context['business_status']}
+
+USE THIS DATE FOR:
+- Calculating lead times and delivery dates
+- Determining shipping schedules (exclude weekends if needed)
+- Checking if tariffs/regulations are current
+- Estimating arrival dates based on transit times
+- Any date-related calculations
+
+═══════════════════════════════════════════════════════════════
+📊 CONTEXT 1: PRODUCT & PRICING DATA (Excel)
+═══════════════════════════════════════════════════════════════
+{state['context_text']}
+
+═══════════════════════════════════════════════════════════════
+📄 CONTEXT 2: ATTACHED PDF DOCUMENTS
+═══════════════════════════════════════════════════════════════
+(See attached files for Shipping Tariffs and Compliance Guide)
+
+═══════════════════════════════════════════════════════════════
+❓ USER QUESTION
+═══════════════════════════════════════════════════════════════
+{state['question']}
+
+═══════════════════════════════════════════════════════════════
+📋 RESPONSE INSTRUCTIONS
+═══════════════════════════════════════════════════════════════
+1. Answer precisely using the provided data
+2. For lead times: Calculate actual delivery dates from TODAY ({time_context['date']})
+3. For shipping: Consider business days only (Mon-Fri)
+4. Show your calculations step-by-step
+5. Cite specific sources (sheet names, PDF sections)
+
+Output format (JSON):
+{{
+    "answer": "The direct answer to the user's question. If calculating dates, show the actual calendar date.",
+    "explanation": "Step-by-step explanation. For date calculations, show: Today ({time_context['date']}) + X days = [calculated date]",
+    "citations": ["Sheet Name or PDF Section"],
+    "confidence": 0.95,
+    "timestamp": "{time_context['full_datetime']}"
+}}
+"""
+
+        # Build contents list with text and files
+        contents = [prompt_text]
         if state['context_files']:
-            prompt_parts.extend(state['context_files'])
-        
-        response = model.generate_content(
-            prompt_parts,
-            generation_config={"response_mime_type": "application/json"}
+            contents.extend(state['context_files'])
+
+        # ✅ UPDATED: Use new client-based API
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=contents,
+            config={"response_mime_type": "application/json"}
         )
         state["final_answer"] = json.loads(response.text)
         
