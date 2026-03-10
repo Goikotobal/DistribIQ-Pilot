@@ -14,7 +14,7 @@ load_dotenv()
 API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # ✅ UPDATED: Using the correct Flash model version
-MODEL_NAME = "gemini-2.5-flash"
+MODEL_NAME = "gemini-2.0-flash"
 
 # ✅ NEW: Timezone configuration (change to your preferred timezone)
 TIMEZONE = "Europe/Amsterdam"  # Options: "Europe/Berlin", "America/New_York", etc.
