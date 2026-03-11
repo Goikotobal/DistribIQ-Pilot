@@ -5,6 +5,7 @@ from datetime import datetime
 import pytz  # ✅ NEW: For timezone support
 from typing import TypedDict, List, Any
 from google import genai
+import PyPDF2  # ✅ NEW: For PDF text extraction
 from langgraph.graph import StateGraph, END
 from dotenv import load_dotenv
 import pandas as pd
@@ -13,18 +14,17 @@ import pandas as pd
 load_dotenv()
 
 # Try to get API key from Streamlit secrets first, then fall back to environment variables
-API_KEY = None
 try:
     import streamlit as st
-    API_KEY = st.secrets["GOOGLE_API_KEY"]
+    api_key = st.secrets["GOOGLE_API_KEY"]
     print("[DEBUG] API Key loaded from Streamlit secrets")
 except:
-    API_KEY = os.environ.get("GOOGLE_API_KEY")
+    api_key = os.environ.get("GOOGLE_API_KEY")
     print("[DEBUG] API Key loaded from environment variables")
 
 # Debug: Print first 8 chars of API key to verify it's loaded
-if API_KEY:
-    print(f"[DEBUG] API Key loaded: {API_KEY[:8]}...")
+if api_key:
+    print(f"[DEBUG] API Key loaded: {api_key[:8]}...")
 else:
     print("[DEBUG] API Key: None")
 
@@ -35,8 +35,8 @@ MODEL_NAME = "gemini-2.0-flash"
 TIMEZONE = "Europe/Amsterdam"  # Options: "Europe/Berlin", "America/New_York", etc.
 
 # ✅ UPDATED: Using new google.genai SDK with client-based approach
-if API_KEY:
-    client = genai.Client(api_key=API_KEY)
+if api_key:
+    client = genai.Client(api_key=api_key)
 else:
     client = None
     print("⚠️ No API Key found. Running in MOCK MODE.")
@@ -45,8 +45,7 @@ else:
 class DistribIQState(TypedDict):
     question_id: str
     question: str
-    context_files: List[Any]    # Handles for PDFs
-    context_text: str           # Text content for Excel
+    context_text: str           # Combined text content for Excel and PDFs
     final_answer: dict
 
 # --- 3. DATE/TIME HELPER FUNCTIONS --- ✅ NEW SECTION
@@ -74,11 +73,11 @@ def get_business_context():
     Returns business-relevant time context for supply chain operations.
     """
     dt = get_current_datetime()
-    
+
     # Determine business hours (assuming 8:00-18:00 CET)
     hour = int(datetime.now(pytz.timezone(TIMEZONE)).strftime("%H"))
     is_business_hours = 8 <= hour < 18 and not dt["is_weekend"]
-    
+
     return {
         **dt,
         "is_business_hours": is_business_hours,
@@ -86,37 +85,54 @@ def get_business_context():
         "note": "Consider next business day for responses if outside business hours"
     }
 
-# --- 4. THE FILE LOADER ---
+# --- 4. PDF TEXT EXTRACTION --- ✅ NEW FUNCTION
+def extract_pdf_text(pdf_path):
+    """
+    Extracts text from a PDF file using PyPDF2.
+    """
+    try:
+        text = ""
+        with open(pdf_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            for page_num, page in enumerate(pdf_reader.pages):
+                text += f"\n--- PAGE {page_num + 1} ---\n"
+                text += page.extract_text()
+        return text
+    except Exception as e:
+        print(f"   [ERROR] PDF Error: {e}")
+        return ""
+
+# --- 5. THE FILE LOADER ---
 def prepare_knowledge_base():
     """
-    Reads Excel locally (converting to markdown) and uploads PDFs to Gemini.
+    Reads Excel locally (converting to markdown) and extracts text from PDFs.
     """
-    
-    # ✅ PATH LOGIC: 
+
+    # ✅ PATH LOGIC:
     # Get the folder where THIS script (agent.py) lives
     current_dir = os.path.dirname(os.path.abspath(__file__))
     # Go up one level (..), then down into data/docs
     base_folder = os.path.join(current_dir, "..", "data", "docs")
-    
+
     # Files to look for
     excel_file = "DM_Report_MASTER_Generic.xlsx"
     pdf_files = [
         "Shipping_Tariffs_EMEA_Generic.pdf",
         "Regulatory_Compliance_Guide_Generic.pdf"
     ]
-    
+
     knowledge_context = {
-        "pdf_handles": [],
+        "pdf_text": "",
         "excel_text": ""
     }
-    
-    print(f"📂 Preparing Knowledge Base from: {base_folder}")
-    
+
+    print(f"[INFO] Preparing Knowledge Base from: {base_folder}")
+
     # Verify folder exists
     if not os.path.exists(base_folder):
-        print(f"❌ ERROR: Folder '{base_folder}' not found.")
+        print(f"[ERROR] Folder '{base_folder}' not found.")
         return knowledge_context
-    
+
     # --- PART A: PROCESS EXCEL ---
     excel_path = os.path.join(base_folder, excel_file)
     if os.path.exists(excel_path):
@@ -128,36 +144,38 @@ def prepare_knowledge_base():
                 markdown_table = df.to_markdown(index=False)
                 full_text += f"\n### SHEET: {sheet_name}\n{markdown_table}\n"
             knowledge_context["excel_text"] = full_text
-            print(f"   ✅ Excel processed")
+            print(f"   [OK] Excel processed")
         except Exception as e:
-            print(f"   ❌ Excel Error: {e}")
+            print(f"   [ERROR] Excel Error: {e}")
 
-    # --- PART B: UPLOAD PDFS ---
+    # --- PART B: EXTRACT PDF TEXT ---
+    pdf_text_combined = ""
     for filename in pdf_files:
         full_path = os.path.join(base_folder, filename)
         if os.path.exists(full_path):
-            try:
-                f = client.files.upload(path=full_path)
-                while f.state == "PROCESSING":
-                    time.sleep(1)
-                    f = client.files.get(name=f.name)
-                knowledge_context["pdf_handles"].append(f)
-                print(f"   ✅ PDF Ready: {filename}")
-            except Exception as e:
-                 print(f"   ❌ PDF Error: {e}")
+            print(f"   [INFO] Extracting text from: {filename}")
+            pdf_text = extract_pdf_text(full_path)
+            if pdf_text:
+                pdf_text_combined += f"\n\n=== PDF SOURCE: {filename} ===\n{pdf_text}\n"
+                print(f"   [OK] PDF processed: {filename}")
+
+    knowledge_context["pdf_text"] = pdf_text_combined
 
     return knowledge_context
 
-# --- 5. THE AGENT (Updated with Date/Time Awareness) --- ✅ UPDATED
+# --- 6. THE AGENT (Updated with Date/Time Awareness) --- ✅ UPDATED
 def solver_agent(state: DistribIQState):
-    print(f"\n⚙️ [DistribIQ] Thinking about: {state['question']}...")
-    
+    print(f"\n[PROCESSING] [DistribIQ] Thinking about: {state['question']}...")
+
     # ✅ NEW: Get current date/time context
     time_context = get_business_context()
-    
+
     try:
-        # ✅ UPDATED: Build prompt parts with new SDK
-        prompt_text = f"""
+        if not client:
+            raise Exception("No Gemini API client configured")
+
+        # Build prompt with context
+        prompt = f"""
 You are DistribIQ, an expert AI assistant for Barentz specializing in supply chain,
 product information, logistics, and regulatory compliance.
 
@@ -178,14 +196,9 @@ USE THIS DATE FOR:
 - Any date-related calculations
 
 ═══════════════════════════════════════════════════════════════
-📊 CONTEXT 1: PRODUCT & PRICING DATA (Excel)
+📊 CONTEXT: PRODUCT & PRICING DATA
 ═══════════════════════════════════════════════════════════════
 {state['context_text']}
-
-═══════════════════════════════════════════════════════════════
-📄 CONTEXT 2: ATTACHED PDF DOCUMENTS
-═══════════════════════════════════════════════════════════════
-(See attached files for Shipping Tariffs and Compliance Guide)
 
 ═══════════════════════════════════════════════════════════════
 ❓ USER QUESTION
@@ -211,54 +224,53 @@ Output format (JSON):
 }}
 """
 
-        # Build contents list with text and files
-        contents = [prompt_text]
-        if state['context_files']:
-            contents.extend(state['context_files'])
-
-        # ✅ UPDATED: Use new client-based API
+        # ✅ UPDATED: Use simplified client-based API
         response = client.models.generate_content(
             model=MODEL_NAME,
-            contents=contents,
-            config={"response_mime_type": "application/json"}
+            contents=prompt
         )
-        state["final_answer"] = json.loads(response.text)
-        
+        result_text = response.text
+
+        # Parse JSON response
+        state["final_answer"] = json.loads(result_text)
+
     except Exception as e:
-        print(f"   ❌ AI Error: {e}")
+        print(f"   [ERROR] AI Error: {e}")
         state["final_answer"] = {"error": str(e)}
-        
+
     return state
 
-# --- 6. RUNNER ---
+# --- 7. RUNNER ---
 if __name__ == "__main__":
     # Show current time context
-    print("\n🕐 Current Time Context:")
+    print("\n[TIME] Current Time Context:")
     ctx = get_business_context()
     for key, value in ctx.items():
         print(f"   {key}: {value}")
-    
+
     # 1. Prepare Data
     kb_data = prepare_knowledge_base()
-    
+
     # 2. Build Graph
     workflow = StateGraph(DistribIQState)
     workflow.add_node("solver", solver_agent)
     workflow.set_entry_point("solver")
     workflow.add_edge("solver", END)
     app = workflow.compile()
-    
+
     # 3. Ask Question (S001)
-    if kb_data["excel_text"] or kb_data["pdf_handles"]:
-        print("\n🚀 Running DistribIQ with Time Awareness...")
+    if kb_data["excel_text"] or kb_data["pdf_text"]:
+        print("\n[RUN] Running DistribIQ with Gemini 2.0 Flash...")
+        # Combine excel_text and pdf_text into context_text
+        combined_context = kb_data["excel_text"] + "\n\n" + kb_data["pdf_text"]
+
         result = app.invoke({
             "question_id": "S001",
             "question": "What is the lead time for Citric Acid from Jungbunzlauer? When would it arrive if I order today?",
-            "context_files": kb_data["pdf_handles"],
-            "context_text": kb_data["excel_text"]
+            "context_text": combined_context
         })
-        
-        print("\n📢 ANSWER:")
+
+        print("\n[ANSWER]:")
         print(json.dumps(result["final_answer"], indent=2))
     else:
-        print("\n🛑 STOPPING: No data found.")
+        print("\n[STOP] STOPPING: No data found.")
