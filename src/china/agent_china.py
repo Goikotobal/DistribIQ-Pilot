@@ -38,8 +38,8 @@ else:
 TIMEZONE = os.environ.get("TIMEZONE", "Asia/Shanghai")  # Default to China timezone
 
 if QWEN_API_KEY:
-    # Add 60 second timeout for API calls
-    client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL, timeout=60.0)
+    # Add 120 second timeout for API calls to handle large contexts
+    client = OpenAI(api_key=QWEN_API_KEY, base_url=QWEN_BASE_URL, timeout=120.0)
 else:
     client = None
     print("[WARNING] No API Key found. Running in MOCK MODE.")
@@ -177,6 +177,12 @@ def solver_agent(state: DistribIQState):
         if not client:
             raise Exception("No Qwen API client configured")
 
+        # Truncate context to prevent timeout (max 8000 characters)
+        context_text = state['context_text']
+        if len(context_text) > 8000:
+            context_text = context_text[:8000] + "\n\n[... context truncated for size ...]"
+            print(f"   [INFO] Context truncated from {len(state['context_text'])} to 8000 chars")
+
         # [OK] SAME PROMPT STRUCTURE, just combined into single string
         prompt = f"""
 You are DistribIQ, an expert AI assistant for Barentz specializing in supply chain,
@@ -201,7 +207,7 @@ USE THIS DATE FOR:
 ═══════════════════════════════════════════════════════════════
 📊 CONTEXT 1: PRODUCT & PRICING DATA (Excel)
 ═══════════════════════════════════════════════════════════════
-{state['context_text']}
+{context_text}
 
 ═══════════════════════════════════════════════════════════════
 ❓ USER QUESTION
@@ -227,19 +233,26 @@ Output format (JSON):
 }}
 """
 
-        # [OK] CHANGED: Using OpenAI chat completions API
-        response = client.chat.completions.create(
+        # [OK] CHANGED: Using OpenAI chat completions API with streaming
+        stream = client.chat.completions.create(
             model=QWEN_MODEL,
             messages=[
                 {"role": "system", "content": "You are DistribIQ, an expert supply chain AI assistant. Always respond with valid JSON."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"},
-            temperature=0.3
+            temperature=0.3,
+            stream=True
         )
 
+        # Collect the streamed response
+        full_response = ""
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                full_response += chunk.choices[0].delta.content
+
         # [OK] CHANGED: Parse OpenAI response format
-        state["final_answer"] = json.loads(response.choices[0].message.content)
+        state["final_answer"] = json.loads(full_response)
 
     except Exception as e:
         print(f"   [ERROR] AI Error: {e}")
