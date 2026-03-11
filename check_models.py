@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 client = genai.Client(api_key=os.environ.get("GOOGLE_API_KEY"))
 
-print("🔍 Checking available models for your API Key...")
+print("[INFO] Checking available models for your API Key...")
 try:
     models = client.models.list()
     for m in models:

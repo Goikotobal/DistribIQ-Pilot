@@ -149,7 +149,7 @@ with st.sidebar:
             with st.spinner("Ingesting Excel & PDFs..."):
                 try:
                     data = prepare_knowledge_base()
-                    if data["excel_text"] or data["pdf_handles"]:
+                    if data["excel_text"] or data["pdf_text"]:
                         st.session_state.kb_data = data
                         st.session_state.kb_loaded = True
                         st.rerun()
@@ -218,11 +218,13 @@ if prompt := st.chat_input("Ask about products, shipping, or regulations..."):
             if "GOOGLE_API_KEY" not in os.environ:
                  st.warning("⚠️ No API Key found. Results might be empty (Mock Mode).")
 
+            # Combine excel_text and pdf_text into context_text
+            combined_context = st.session_state.kb_data["excel_text"] + "\n\n" + st.session_state.kb_data.get("pdf_text", "")
+
             state = {
                 "question_id": str(uuid.uuid4())[:8],
                 "question": prompt,
-                "context_files": st.session_state.kb_data["pdf_handles"],
-                "context_text": st.session_state.kb_data["excel_text"],
+                "context_text": combined_context,
                 "final_answer": {}
             }
             

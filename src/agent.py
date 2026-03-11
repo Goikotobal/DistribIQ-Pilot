@@ -28,8 +28,8 @@ if api_key:
 else:
     print("[DEBUG] API Key: None")
 
-# ✅ UPDATED: Using the correct Flash model version
-MODEL_NAME = "gemini-2.0-flash"
+# ✅ UPDATED: Using gemini-2.0-flash-lite for higher free tier limits
+MODEL_NAME = "gemini-2.0-flash-lite"
 
 # ✅ NEW: Timezone configuration (change to your preferred timezone)
 TIMEZONE = "Europe/Amsterdam"  # Options: "Europe/Berlin", "America/New_York", etc.
