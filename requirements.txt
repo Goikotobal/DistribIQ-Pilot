@@ -2,7 +2,6 @@ streamlit
 pandas
 openpyxl
 python-dotenv
-google-genai
 langgraph
 langchain
 langchain-core

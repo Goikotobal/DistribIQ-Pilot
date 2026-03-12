@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import pytz  # ✅ NEW: For timezone support
 from typing import TypedDict, List, Any
-from google import genai
+from openai import OpenAI
 import PyPDF2  # ✅ NEW: For PDF text extraction
 from langgraph.graph import StateGraph, END
 from dotenv import load_dotenv
@@ -16,10 +16,10 @@ load_dotenv()
 # Try to get API key from Streamlit secrets first, then fall back to environment variables
 try:
     import streamlit as st
-    api_key = st.secrets["GOOGLE_API_KEY"]
+    api_key = st.secrets["OPENAI_API_KEY"]
     print("[DEBUG] API Key loaded from Streamlit secrets")
 except:
-    api_key = os.environ.get("GOOGLE_API_KEY")
+    api_key = os.environ.get("OPENAI_API_KEY")
     print("[DEBUG] API Key loaded from environment variables")
 
 # Debug: Print first 8 chars of API key to verify it's loaded
@@ -28,15 +28,15 @@ if api_key:
 else:
     print("[DEBUG] API Key: None")
 
-# ✅ UPDATED: Using gemini-2.0-flash-lite for higher free tier limits
-MODEL_NAME = "gemini-2.0-flash-lite"
+# ✅ UPDATED: Using gpt-4o-mini for cost-effective performance
+MODEL_NAME = "gpt-4o-mini"
 
 # ✅ NEW: Timezone configuration (change to your preferred timezone)
 TIMEZONE = "Europe/Amsterdam"  # Options: "Europe/Berlin", "America/New_York", etc.
 
-# ✅ UPDATED: Using new google.genai SDK with client-based approach
+# ✅ UPDATED: Using OpenAI client
 if api_key:
-    client = genai.Client(api_key=api_key)
+    client = OpenAI(api_key=api_key)
 else:
     client = None
     print("⚠️ No API Key found. Running in MOCK MODE.")
@@ -224,12 +224,14 @@ Output format (JSON):
 }}
 """
 
-        # ✅ UPDATED: Use simplified client-based API
-        response = client.models.generate_content(
+        # ✅ UPDATED: Use OpenAI API
+        response = client.chat.completions.create(
             model=MODEL_NAME,
-            contents=prompt
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+            temperature=0.3
         )
-        result_text = response.text
+        result_text = response.choices[0].message.content
 
         # Parse JSON response
         state["final_answer"] = json.loads(result_text)

@@ -22,7 +22,7 @@ def run_tests():
     print("\n📦 Pre-loading Knowledge Base (PDFs + Excel)...")
     kb_data = prepare_knowledge_base()
     
-    if not kb_data["excel_text"] and not kb_data["pdf_handles"]:
+    if not kb_data["excel_text"] and not kb_data["pdf_text"]:
         print("❌ CRITICAL: No data found. Stopping test.")
         return
 
@@ -64,8 +64,7 @@ def run_tests():
         state = {
             "question_id": q_id,
             "question": q_text,
-            "context_files": kb_data["pdf_handles"],
-            "context_text": kb_data["excel_text"],
+            "context_text": kb_data["excel_text"] + "\n\n" + kb_data["pdf_text"],
             "final_answer": {}
         }
         
